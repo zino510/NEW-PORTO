@@ -15,10 +15,26 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: false,
+        rewrite: (path) => path
+      }
+    }
   },
   build: {
     target: 'esnext',
-    minify: 'terser'
-  }
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'auth': ['src/composables/useAuth.js', 'src/utils/authHelpers.js']
+        }
+      }
+    }
+  },
+  define: {
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development')  }
 })

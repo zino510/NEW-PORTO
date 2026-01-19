@@ -1,6 +1,28 @@
 .env
 .env.local
+.env.*.local
+.env.production
 node_modules/
 dist/
 .DS_Store
 *.log
+logs/
+.vercel
+*.pem
+*.key
+.vscode/settings.json
+.idea/
+*~
+.eslintcache
+.cache/
+.next/
+out/
+
+# Security
+.aws/
+.ssh/
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
