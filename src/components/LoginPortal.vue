@@ -128,19 +128,6 @@ onMounted(async () => {
   // Setup interceptors on component mount
   ensureInterceptors()
 
-  // Jika sudah login, redirect ke project dengan token
-  const isAuth = await checkAuth()
-  if (isAuth) {
-    const token = localStorage.getItem('authToken')
-    const redirectUrl = import.meta.env.VITE_REDIRECT_URL || 'https://2117.zinsyaikh.my.id'
-    
-    if (token) {
-      window.location.href = `${redirectUrl}?token=${encodeURIComponent(token)}`
-    } else {
-      window.location.href = redirectUrl
-    }
-  }
-
   // Load remember me data jika ada
   const savedUsername = localStorage.getItem('savedUsername')
   if (savedUsername) {
@@ -185,43 +172,30 @@ const handleLogin = async () => {
   isLoading.value = true
 
   try {
-    const response = await login(username.value, password.value, rememberMe.value)
+    // Encode credentials untuk dikirim ke 2117.zinsyaikh.my.id
+    const credentials = btoa(`${username.value}:${password.value}`)
     
-    if (response.success) {
-      successMessage.value = 'Login berhasil! Redirecting...'
-      
-      // Save username untuk remember me
-      if (rememberMe.value) {
-        localStorage.setItem('savedUsername', username.value)
-      } else {
-        localStorage.removeItem('savedUsername')
-      }
-
-      // Reset attempt counter
-      localStorage.removeItem('loginAttempts')
-      loginAttempts.value = 0
-
-      // Redirect ke project kedua dengan token setelah 1 detik
-      setTimeout(() => {
-        // Get token dari localStorage (disimpan oleh useAuth)
-        const token = localStorage.getItem('authToken')
-        const redirectUrl = import.meta.env.VITE_REDIRECT_URL || 'https://2117.zinsyaikh.my.id'
-        
-        // Redirect dengan token sebagai query parameter
-        if (token) {
-          window.location.href = `${redirectUrl}?token=${encodeURIComponent(token)}`
-        } else {
-          window.location.href = redirectUrl
-        }
-      }, 1000)
+    successMessage.value = 'Login diproses... Redirecting...'
+    
+    // Save username untuk remember me
+    if (rememberMe.value) {
+      localStorage.setItem('savedUsername', username.value)
     } else {
-      errorMessage.value = response.message || 'Login gagal. Periksa username dan password Anda.'
-      
-      // Increment attempt counter
-      loginAttempts.value += 1
-      localStorage.setItem('loginAttempts', loginAttempts.value.toString())
-      localStorage.setItem('lastAttempt', Date.now().toString())
+      localStorage.removeItem('savedUsername')
     }
+
+    // Reset attempt counter
+    localStorage.removeItem('loginAttempts')
+    loginAttempts.value = 0
+
+    // Langsung redirect ke 2117.zinsyaikh.my.id dengan credentials
+    // Password akan diverifikasi di website tersebut
+    setTimeout(() => {
+      const redirectUrl = import.meta.env.VITE_REDIRECT_URL || 'https://2117.zinsyaikh.my.id'
+      
+      // Redirect dengan credentials sebagai query parameter
+      window.location.href = `${redirectUrl}?auth=${encodeURIComponent(credentials)}`
+    }, 500)
   } catch (error) {
     console.error('Login error:', error)
     errorMessage.value = error.message || 'Terjadi error saat login. Coba lagi nanti.'
