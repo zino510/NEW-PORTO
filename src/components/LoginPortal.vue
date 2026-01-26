@@ -65,18 +65,6 @@
             </div>
           </div>
 
-          <!-- Remember Me -->
-          <div class="flex items-center">
-            <input
-              v-model="rememberMe"
-              type="checkbox"
-              id="rememberMe"
-              :disabled="isLoading"
-              class="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500 focus:ring-1 cursor-pointer"
-            />
-            <label for="rememberMe" class="ml-2 text-sm text-gray-400 cursor-pointer">Remember me for 7 days</label>
-          </div>
-
           <!-- Submit Button -->
           <button
             type="submit"
@@ -89,11 +77,6 @@
             {{ isLoading ? 'Logging in...' : 'Sign In' }}
           </button>
         </form>
-
-        <!-- Attempt Counter (untuk debugging rate limiting) -->
-        <div v-if="loginAttempts > 0" class="mt-4 text-xs text-gray-500 text-center">
-          Login attempts: {{ loginAttempts }}/{{ maxLoginAttempts }}
-        </div>
       </div>
 
       <!-- Footer Info -->
@@ -105,105 +88,75 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuth } from '@/composables/useAuth'
-
-const router = useRouter()
-const { login, isAuthenticated, checkAuth, ensureInterceptors } = useAuth()
+import { ref, onMounted } from 'vue'
 
 const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
-const rememberMe = ref(false)
 const isLoading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
-const loginAttempts = ref(0)
-const maxLoginAttempts = 5
-const lastAttemptTime = ref(null)
-const attemptTimeout = 15 * 60 * 1000 // 15 minutes
 
-onMounted(async () => {
-  // Setup interceptors on component mount
-  ensureInterceptors()
-
-  // Load remember me data jika ada
+onMounted(() => {
+  // Load saved username jika ada
   const savedUsername = localStorage.getItem('savedUsername')
   if (savedUsername) {
     username.value = savedUsername
-    rememberMe.value = true
   }
-
-  // Reset attempt counter setelah 15 menit
-  const lastAttempt = localStorage.getItem('lastAttempt')
-  if (lastAttempt && Date.now() - parseInt(lastAttempt) > attemptTimeout) {
-    localStorage.removeItem('loginAttempts')
-  }
-
-  loginAttempts.value = parseInt(localStorage.getItem('loginAttempts') || '0')
 })
 
 const handleLogin = async () => {
   errorMessage.value = ''
   successMessage.value = ''
 
-  // Validasi input
+  // Validasi input sederhana
   if (!username.value || !password.value) {
     errorMessage.value = 'Username dan password harus diisi'
     return
   }
 
-  // Check rate limiting
-  if (loginAttempts.value >= maxLoginAttempts) {
-    const lastAttempt = parseInt(localStorage.getItem('lastAttempt') || '0')
-    const timeDiff = Date.now() - lastAttempt
-    
-    if (timeDiff < attemptTimeout) {
-      const remainingMinutes = Math.ceil((attemptTimeout - timeDiff) / 60000)
-      errorMessage.value = `Terlalu banyak percobaan. Coba lagi dalam ${remainingMinutes} menit`
-      return
-    } else {
-      localStorage.removeItem('loginAttempts')
-      loginAttempts.value = 0
-    }
-  }
-
   isLoading.value = true
 
   try {
-    // Encode credentials untuk dikirim ke 2117.zinsyaikh.my.id
-    const credentials = btoa(`${username.value}:${password.value}`)
+    successMessage.value = 'Redirecting...'
     
-    successMessage.value = 'Login diproses... Redirecting...'
-    
-    // Save username untuk remember me
-    if (rememberMe.value) {
+    // Simpan username jika dipilih
+    if (username.value) {
       localStorage.setItem('savedUsername', username.value)
-    } else {
-      localStorage.removeItem('savedUsername')
     }
 
-    // Reset attempt counter
-    localStorage.removeItem('loginAttempts')
-    loginAttempts.value = 0
-
-    // Langsung redirect ke 2117.zinsyaikh.my.id dengan credentials
-    // Password akan diverifikasi di website tersebut
+    // Redirect langsung ke 2117.zinsyaikh.my.id dengan credentials
+    // Tanpa validasi apapun di sini
     setTimeout(() => {
       const redirectUrl = import.meta.env.VITE_REDIRECT_URL || 'https://2117.zinsyaikh.my.id'
       
-      // Redirect dengan credentials sebagai query parameter
-      window.location.href = `${redirectUrl}?auth=${encodeURIComponent(credentials)}`
-    }, 500)
+      // Kirim username dan password ke 2117 untuk validasi di sana
+      // Method: POST dengan credentials dalam form data
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = `${redirectUrl}/login`
+      form.style.display = 'none'
+
+      // Tambah username field
+      const usernameInput = document.createElement('input')
+      usernameInput.type = 'hidden'
+      usernameInput.name = 'username'
+      usernameInput.value = username.value
+      form.appendChild(usernameInput)
+
+      // Tambah password field
+      const passwordInput = document.createElement('input')
+      passwordInput.type = 'hidden'
+      passwordInput.name = 'password'
+      passwordInput.value = password.value
+      form.appendChild(passwordInput)
+
+      document.body.appendChild(form)
+      form.submit()
+    }, 300)
   } catch (error) {
-    console.error('Login error:', error)
-    errorMessage.value = error.message || 'Terjadi error saat login. Coba lagi nanti.'
-    
-    // Increment attempt counter
-    loginAttempts.value += 1
-    localStorage.setItem('loginAttempts', loginAttempts.value.toString())
-    localStorage.setItem('lastAttempt', Date.now().toString())
+    console.error('Redirect error:', error)
+    errorMessage.value = 'Terjadi error saat redirect'
   } finally {
     isLoading.value = false
   }
