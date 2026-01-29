@@ -20,7 +20,6 @@
             </svg>
           </div>
           <h3 class="font-bold mb-2">Email</h3>
-          <p class="text-gray-400 text-sm group-hover:text-primary transition duration-300">zahbarqalsyahzinhoulhaq052@gmail.com</p>
         </a>
 
         <a href="https://instagram.com/zinnsyaikh" target="_blank" class="glass p-6 rounded-lg border border-secondary/20 hover:border-secondary/50 hover:shadow-lg hover:shadow-secondary/20 transition duration-300 group cursor-pointer">
@@ -33,7 +32,7 @@
           <p class="text-gray-400 text-sm group-hover:text-secondary transition duration-300">@zinnsyaikh</p>
         </a>
 
-        <a href="https://linkedin.com/in/zahbarqal-syahzihoulhaq" target="_blank" class="glass p-6 rounded-lg border border-cyan-500/20 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition duration-300 group cursor-pointer">
+        <a href="https://www.linkedin.com/in/zahbarqal-syahzinhoulhaq-53a7a639a/?originalSubdomain=id" target="_blank" class="glass p-6 rounded-lg border border-cyan-500/20 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/20 transition duration-300 group cursor-pointer">
           <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500 flex-center mb-4 group-hover:scale-110 transition duration-300">
             <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.39v-1.2h-2.49v8.5h2.5v-4.6c0-.78.62-1.4 1.4-1.4.77 0 1.4.62 1.4 1.39v4.61h2.49M6.88 8.56a1.68 1.68 0 0 1-1.68-1.68c0-.93.75-1.69 1.68-1.69.93 0 1.69.76 1.69 1.69 0 .93-.76 1.68-1.69 1.68m1.39 9.94v-8.5H5.5v8.5h2.77z"/>
